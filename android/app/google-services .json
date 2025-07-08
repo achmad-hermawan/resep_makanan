@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "237493145500",
+    "project_id": "resep-makanan-app-85d16",
+    "storage_bucket": "resep-makanan-app-85d16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237493145500:android:91a74814946a0029630259",
+        "android_client_info": {
+          "package_name": "com.hermawan.resep_makanan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgEpjFH4Fv-SCr6IQcenx3zVLH_MQHblY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

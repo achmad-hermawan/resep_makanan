@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+
+import 'firebase_options.dart';
 import 'providers/favorite_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/translate_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/favorite_screen.dart';
-import 'screens/main_screen.dart'; // karena sudah dipisah
+import 'screens/main_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 
-void main() {
+// Inisialisasi Firebase sebelum aplikasi dijalankan. Wajib untuk fungsi-fungsi autentikasi.
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Menyambungkan ke Firebase untuk fitur login/register.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
+    // Menyediakan banyak state global (FavoriteProvider dan ThemeProvider).
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => TranslateProvider()),
       ],
       child: const MyApp(),
     ),
@@ -23,7 +39,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context); // Mengubah tema aplikasi secara dinamis (light/dark).
 
     return MaterialApp(
       title: 'Resep Makanan',
@@ -39,7 +55,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.grey, // warna aksen netral
+          seedColor: Colors.grey,
           brightness: Brightness.light,
         ),
       ),
@@ -48,12 +64,17 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.amber, // atau sesuai selera kamu
+          seedColor: Colors.amber,
           brightness: Brightness.dark,
         ),
       ),
 
       home: const MainScreen(),
+      routes: {
+        '/settings': (context) => const SettingsScreen(),
+        '/login': (context) => const LoginScreen(),     // halaman login
+        '/register': (context) => const RegisterScreen(), // halaman daftar
+      },
     );
   }
 }

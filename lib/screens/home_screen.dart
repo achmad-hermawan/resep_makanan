@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    // Controller untuk animasi fade-in saat menampilkan hasil pencarian
     _animController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -37,25 +38,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // Fungsi untuk mencari resep berdasarkan input teks atau kategori preset
   void _searchMeal([String? preset]) async {
     final query = preset ?? _controller.text.trim();
     if (query.isEmpty) return;
 
     setState(() {
       _isLoading = true;
-      _firstVisit = false;
+      _firstVisit = false; // Menandakan bahwa ini bukan kunjungan pertama
     });
 
     try {
       final meals = await ApiService.fetchMeals(query);
       setState(() {
         _meals = meals;
-        _animController.forward(from: 0); // animasi ulang
+        _animController.forward(from: 0); // Mulai animasi dari awal
       });
     } catch (_) {
       setState(() {
         _meals = [];
       });
+
+      // Tampilkan pesan kesalahan jika gagal mengambil data
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal memuat data")),
       );
@@ -66,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  // Widget untuk menampilkan kolom pencarian
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -85,33 +90,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 hintText: "Cari resep makanan...",
                 border: InputBorder.none,
               ),
-              onSubmitted: (_) => _searchMeal(),
+              onSubmitted: (_) => _searchMeal(), // pencarian saat ditekan Enter
             ),
           ),
           IconButton(
             icon: const Icon(Icons.send, color: Colors.green),
-            onPressed: _searchMeal,
+            onPressed: _searchMeal, // pencarian saat tekan tombol kirim
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final cat = _categories[index];
-          return ActionChip(
-            label: Text(cat),
-            backgroundColor: Colors.green.shade50,
-            onPressed: () => _searchMeal(cat),
-          );
-        },
       ),
     );
   }
@@ -126,9 +112,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     } else {
       return GridView.builder(
         itemCount: _meals.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.75,
+          childAspectRatio: MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.height / 2.3), // Sesuaikan dengan preferensi
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -148,36 +135,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Resep Makanan"),
-          actions: [
-            Consumer<ThemeProvider>(
-              builder: (context, themeProvider, _) {
-                return IconButton(
-                  icon: Icon(
-                    themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: () {
-                    themeProvider.toggleTheme(!themeProvider.isDarkMode);
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildSearchBar(),
-              const SizedBox(height: 16),
-              Expanded(child: _buildResultGrid()),
-            ],
-          ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildSearchBar(),
+          const SizedBox(height: 16),
+          Expanded(child: _buildResultGrid()),
+        ],
       ),
     );
   }
